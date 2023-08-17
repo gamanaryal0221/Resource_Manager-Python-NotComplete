@@ -11,8 +11,5 @@ if __name__ == "__main__":
     port  = settings.PORT
     app.listen(port)
 
-    # Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-    # C:\Apache24\bin\httpd.exe
-    # /user/(?P<action>create|list|profile|edit|delete)
     print(f"\nServer is live on http://localhost:{port}")
     tornado.ioloop.IOLoop.instance().start()
