@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css?family=Source+Serif+Pro:400,600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+
+    <!-- Style -->
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    {% block styles %}{% end %}
+
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="toggle">
+            <a href="#" class="burger js-menu-toggle" data-toggle="collapse" data-target="#main-navbar">
+                <span></span>
+            </a>
+        </div>
+        <div class="side-inner">
+
+            <div class="profile">
+                <img src="" alt="Image" class="img-fluid">
+                <h3 class="name"></h3>
+                <span class="country"></span>
+            </div>
+
+            <!-- <div class="counter d-flex justify-content-center">
+                <div class="col">
+                    <strong class="number">892</strong>
+                    <span class="number-label">Posts</span>
+                </div>
+                <div class="col">
+                    <strong class="number">22.5k</strong>
+                    <span class="number-label">Followers</span>
+                </div>
+                <div class="col">
+                    <strong class="number">150</strong>
+                    <span class="number-label">Following</span>
+                </div>
+            </div> -->
+
+            <div class="nav-menu">
+                <ul>
+                    <!-- <li><a href="#"><span class="icon-sign-out mr-3"></span>Sign out</a></li> -->
+
+                    <li id="home-link"> <a href="/">Home</a> </li>
+                    <li>
+                        <a href="#userSubmenu" data-toggle="collapse" aria-expanded="false"
+                            class="dropdown-toggle">User</a>
+                        <ul class="collapse list-unstyled" id="userSubmenu">
+                            <li id="add-user-link"> <a href="/users">Add User</a> </li>
+                            <li id="list-of-users-link"> <a href="/users">List of Users</a> </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#clientSubmenu" data-toggle="collapse" aria-expanded="false"
+                            class="dropdown-toggle">Client</a>
+                        <ul class="collapse list-unstyled" id="clientSubmenu">
+                            <li id="list-of-clients-link"> <a href="/users">List of Clients</a> </li>
+                            <li id="client-default-setting-link"> <a href="/users">Client Default Setting</a> </li>
+                        </ul>
+                    </li>
+                    <li id="services-link"> <a href="/clients">Service</a> </li>
+                    <li>
+                        <a href="#moreOptionsSubmenu" data-toggle="collapse" aria-expanded="false"
+                            class="dropdown-toggle">More</a>
+                        <ul class="collapse list-unstyled" id="moreOptionsSubmenu">
+                            <li> <a href="/logout">Logout</a> </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </aside>
+    <main>
+        <div class="page">
+            <h2 id="page-title" class="page-title"></h2>
+            <div class="page-content">
+                {% block content %}{% end %}
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var path = window.location.pathname;
+
+            var pageTitle;
+            var activeLinkId
+
+            switch (path) {
+                case "/":
+                    pageTitle = "Home";
+                    activeLinkId = "home-link";
+                    break;
+                default:
+                    pageTitle = "Not Found";
+                    activeLinkId = null;
+            }
+
+            console.log("path:" + path)
+            console.log("pageTitle:" + pageTitle)
+
+            document.title = pageTitle;
+            var pageTitleElement = document.getElementById("page-title");
+            if (pageTitleElement) pageTitleElement.textContent = pageTitle;
+
+            // Remove active class from all links
+            var navLinks = document.querySelectorAll(".nav-link");
+            navLinks.forEach(function (link) {
+                link.classList.remove("active");
+            });
+
+            // Add active class to the corresponding link
+            if (activeLinkId) {
+                var activeLink = document.getElementById(activeLinkId);
+                if (activeLink) activeLink.classList.add("active");
+            }
+        });
+    </script>
+
+    {% block scripts %}{% end %}
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/js/popper.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+
+</html>
