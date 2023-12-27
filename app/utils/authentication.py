@@ -1,18 +1,12 @@
 import jwt
 import bcrypt
 
-from .constants import Key
+from .constants import Key, Token
 from .common import redirect_to_cas_login_page, render_error_page, get_cas_login_page_url, get_cookie
 from app import settings
 
 
-class TokenDetail():
-    private_key = None
-    expire_duration = None #in hours
-    algorithm = None
-    
-
-class Token():
+class JwtToken():
     def validate(self, token=None):
         print("\nValidating token ...")
 
@@ -31,7 +25,7 @@ class Token():
                 decoded_payload = None
                 try:
                     print(f"token: {token}")
-                    decoded_payload = jwt.decode(token, token_detail.private_key, algorithms=[token_detail.algorithm])
+                    decoded_payload = jwt.decode(token, token_detail[Token.PRIVATE_KEY], algorithms=[token_detail[Token.ALGORITHM]])
 
                     print(f"decoded_payload: {decoded_payload}")
                     if decoded_payload is None:

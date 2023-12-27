@@ -78,7 +78,7 @@
                         <a href="#moreOptionsSubmenu" data-toggle="collapse" aria-expanded="false"
                             class="dropdown-toggle">More</a>
                         <ul class="collapse list-unstyled" id="moreOptionsSubmenu">
-                            <li> <a href="/logout">Logout</a> </li>
+                            <li id="logout-link"> <a href="#">Logout</a> </li>
                         </ul>
                     </li>
                 </ul>
@@ -130,6 +130,32 @@
                 var activeLink = document.getElementById(activeLinkId);
                 if (activeLink) activeLink.classList.add("active");
             }
+
+            document.getElementById("logout-link")
+            .addEventListener("click", function(event) {
+                console.log("Logout")
+                event.preventDefault();
+
+                var form = document.createElement("form");
+                form.method = "POST"; // Set the HTTP method to POST
+                form.action = "/user/logout"; // Set the URL to submit the form to
+
+                // Add an input element of type "submit" to the form
+                var submitInput = document.createElement("input");
+                submitInput.type = "submit";
+                submitInput.style.display = "none"; // Hide the submit button
+
+                // Append the input element to the form
+                form.appendChild(submitInput);
+
+                // Append the form to the document body
+                document.body.appendChild(form);
+
+                // Submit the form by triggering a click event on the hidden submit button
+                submitInput.click();
+                console.log("Submitted")
+            });
+
         });
     </script>
 

@@ -1,4 +1,10 @@
-from app.utils.constants import Key, Template, Environment, Url
+from app.utils.constants import Key, Template, Environment, Url, Token
+
+def render_url_not_found(self):
+    render_error_page(
+        self, status_code=404, title="Not Found",
+        message="What you are looking for is not available."
+    )
 
 def render_error_page(self, status_code=504, title="Technical Error", message="Something went wrong\nPlease try again", redirect_url = None, redirect_text = None):
     error =  {"error":{
@@ -12,7 +18,10 @@ def render_error_page(self, status_code=504, title="Technical Error", message="S
     self.render(Template.ERROR, **error)
 
 
-def get_mapped_records(cursor, want_one_if_one=True):
+def get_mapped_record(cursor):
+    return get_mapped_records(cursor, False)
+
+def get_mapped_records(cursor, return_in_list=True):
     if cursor.rowcount > 0:
         all_data = cursor.fetchall()
 
@@ -23,22 +32,30 @@ def get_mapped_records(cursor, want_one_if_one=True):
             record = dict(zip(columns, data))
             records.append(record)
 
-        if len(records)==1 and want_one_if_one:
-            return records[0]
+        if len(records)==1:
+            if return_in_list:
+                return records
+            else:
+                return records[0]
         else:
             return records
     else:
-        None
+        []
+
+def get_count_from_cursor(cursor):
+    all_data = cursor.fetchall()
+    if all_data:
+        first_record = all_data[0]
+        if first_record:
+            return first_record[0] if first_record[0] else 0
+        else:
+            return 0
+    else:
+        return 0
 
 
 def redirect_to_cas_login_page(self):
-    # original_proto = self.request.headers.get("X-Forwarded-Proto", "")
-    # original_host = self.request.headers.get("X-Forwarded-Host", "")
-    # # Construct the full URL with the original scheme and hostname
-    # full_url = f"{original_proto}://{original_host}{self.request.uri}"
-    # print(f"full_url:{full_url}")
-
-    print("Redirecting to cas login page")
+    print("\nRedirecting to cas login page")
     cas_login_url = get_cas_login_page_url(self)
     self.redirect(cas_login_url)
 
@@ -55,15 +72,37 @@ def get_cas_login_page_url(self):
 
     return cas_login_url
 
+def refresh_all_cookies(self, payload):
+    print("\nRefreshing all cookies...")
+    keys = [Key.TOKEN, Key.USER_ID, Key.USERNAME, Key.FULLNAME] #Data being saved in cookies
+    expires = (payload[Key.EXPIRE] if payload else 0)
+    print(F"Expire cookie in {expires} hours")
 
-def set_cookie(self, key, payload):
-    print(f'Setting cookie for key:{key} ...')
-    self.set_secure_cookie(
-        key, 
-        str(payload if (key==Key.TOKEN) else payload[key])
-    )
+    for key in keys:
+        value = ""
+        if payload:
+            value = payload[key]
+        set_cookie(self, key, value, expires)
+
+    return True
+
+def set_cookie(self, key, value, expires):
+    print(f'Setting cookie[key:{key}, value:{value}] ...')
+    self.set_secure_cookie(key, str(value), max_age=expires)
 
 def get_cookie(self, key):
     print(f'Getting cookie for key:{key} ...')
     data = self.get_secure_cookie(key)
     return data
+
+
+def fetch_data(_from, key, default_value=None):
+    print(f"Reading '{key}' ...")
+    if key in _from:
+        return _from[key]
+    else:
+        if default_value:
+            print(f"Missing configuration for '{key}' -> Putting {default_value} as default value")
+            return default_value
+        else:
+            raise ImportError(f"Missing configuration for '{key}'")

@@ -1,6 +1,6 @@
 class Template():
     HOME = "home.html"
-    LOGIN = "login.html"
+    ERROR = "error.html"
 
 class Environment():
     KEY = "environment"
@@ -35,9 +35,14 @@ class Key():
     HASHED_PASSWORD = "hashed_password"
 
     USER_ID = "user_id"
+    USERNAME = "username"
     FULLNAME = "fullname"
 
     HOST_URL = "host_url"
+
+    PORT = "port"
+    
+    EXPIRE = "exp"
 
 
 class Token():
@@ -50,3 +55,8 @@ class Token():
 
 class Url():
     CAS_LOGIN_URL = "http://login.ENVIRONMENT.vcp.com/login?host_url=HOST_URL"
+
+class Action:
+    LIST = "list"
+    PROFILE = "profile"
+    LOGOUT = "logout"

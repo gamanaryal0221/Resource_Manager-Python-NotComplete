@@ -4,12 +4,14 @@ import json
 from app import settings
 from .database import Sql
 from app.utils.constants import Key, Environment, Token
-from app.utils.authentication import TokenDetail
+from app.utils.common import fetch_data
+
 
 # for url mappings
 import re
 from app.handlers.home_handler import HomeHandler
 from app.handlers.login_success import LoginSuccessHandler
+from app.handlers.user_handler import UserHandler
 
 
 class Application():
@@ -35,6 +37,11 @@ class Application():
         print(f"\nTemplate path: {settings.TEMPLATE_PATH}")
         print(f"Static path: {settings.STATIC_PATH}")
 
+        port = fetch_data(config, Key.PORT, -1)
+        if port is not -1:
+            print(f"\nListening to port:{port}")
+            app.listen(port)
+
         return app
     
     
@@ -48,32 +55,17 @@ class Application():
         return data
     
     
-    def get_token_detail(self, config):        
-        if Key.TOKEN in config:
-            print('\n---------- Getting token details ----------')
-            token = config[Key.TOKEN]
-            token_detail = TokenDetail
-
-            if Token.PRIVATE_KEY in token:
-                token_detail.private_key = token[Token.PRIVATE_KEY]
-            else:
-                raise ImportError(f"Missing configuration for '{Token.PRIVATE_KEY}'")
-            
-            if Token.EXPIRE_DURATION in token:
-                token_detail.expire_duration = token[Token.EXPIRE_DURATION]
-            else:
-                print(f"Missing configuration for '{Token.EXPIRE_DURATION}' -> Putting {Token.DEFAULT_EXPIRE_DURATION} hours as default")
-                token_detail.expire_duration = Token.DEFAULT_EXPIRE_DURATION
-            
-            if Token.ALGORITHM in token:
-                token_detail.algorithm = token[Token.ALGORITHM]
-            else:
-                print(f"Missing configuration for token '{Token.ALGORITHM}' -> Putting {Token.DEFAULT_ALGORITHM} as default")
-                token_detail.algorithm = Token.DEFAULT_ALGORITHM
-        
-            return token_detail
+    def get_token_detail(self, config):
+        print('\n---------- Getting token details ----------')
+        token = fetch_data(config, Key.TOKEN) 
+        if token:
+            return {
+                Token.PRIVATE_KEY: fetch_data(token, Token.PRIVATE_KEY),
+                Token.EXPIRE_DURATION: fetch_data(token, Token.EXPIRE_DURATION, Token.DEFAULT_EXPIRE_DURATION),
+                Token.ALGORITHM: fetch_data(token, Token.ALGORITHM, Token.DEFAULT_ALGORITHM),
+            }
         else:
-            raise ConnectionError(f'Missing configuration for token')
+            raise ConnectionError(f'Null received for token detail')
     
     
 class UrlMapping():
@@ -84,6 +76,8 @@ class UrlMapping():
             (fr"/", HomeHandler),
             (fr"{settings.STATIC_URL}", tornado.web.StaticFileHandler, {"path": settings.STATIC_PATH}),
             (fr"/login/success", LoginSuccessHandler),
+
+            (fr"/user/(?P<action>list|add|profile|logout)", UserHandler),
         ]
 
         for i, handler in enumerate(handlers):

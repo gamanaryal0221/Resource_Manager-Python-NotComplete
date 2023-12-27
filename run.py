@@ -18,10 +18,6 @@ if __name__ == "__main__":
 
     app = Application().initialize(environment)
 
-    if environment == Environment.DEVELOPMENT:
-        port  = settings.PORT
-        app.listen(port)
-
     # Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
     # C:\Apache24\conf
     # C:\Apache24\bin\httpd.exe

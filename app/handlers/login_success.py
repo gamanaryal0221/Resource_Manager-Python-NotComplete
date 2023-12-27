@@ -1,10 +1,11 @@
 from typing import Awaitable, Optional
 import tornado.web
 import tornado.ioloop
+import traceback
 
 from app.utils.constants import Key
-from app.utils.authentication import Token
-from app.utils.common import render_error_page, get_cas_login_page_url, set_cookie
+from app.utils.authentication import JwtToken
+from app.utils.common import render_error_page, get_cas_login_page_url, refresh_all_cookies
 
 
 class LoginSuccessHandler(tornado.web.RequestHandler):
@@ -14,19 +15,23 @@ class LoginSuccessHandler(tornado.web.RequestHandler):
             token = self.get_argument(Key.TOKEN, None)
             print(f"Received token:{token}")
             if token:
-                payload = Token.validate(self, token)
-                set_cookie(self, Key.USER_ID, payload)
-                set_cookie(self, Key.FULLNAME, payload)
-                set_cookie(self, Key.TOKEN, token)
+                payload = JwtToken.validate(self, token)
+                payload[Key.TOKEN] = token
 
-                self.request.payload = payload
+                if refresh_all_cookies(self, payload):
+                    self.request.payload = payload
+                else:
+                    raise Exception("Could not set cookies")
+
             else:
-                render_error_page(
-                    render_error_page(message="Please try logging in again.", redirect_url=get_cas_login_page_url(self), redirect_text="Login Again")
+                raise Exception("Null token received")
+
+        except:
+            traceback.print_exc()
+            render_error_page(
+                self, message="Please try logging in again.",
+                redirect_url=get_cas_login_page_url(self), redirect_text="Login Again"
                 )
-        except Exception as e:
-            str(e)
-            render_error_page(redirect_url="/", redirect_text="Go to Homepage")
 
         return super().prepare()
     
